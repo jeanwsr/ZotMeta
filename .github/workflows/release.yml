@@ -35,8 +35,8 @@ jobs:
     
     - name: Commit updates.json
       run: |
-          git config --global user.name 'Jiawei Duan'
-          git config --global user.email 'jiawei.duan@outlook.com'
+          git config --global user.name 'copilot'
+          git config --global user.email 'copilot@github.com'
           git commit -am "Commit new updates.json from Github Actions"
           git push origin HEAD:master
           
