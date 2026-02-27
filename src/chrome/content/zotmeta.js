@@ -71,7 +71,7 @@ ZotMeta = {
             let elem = doc.getElementById(id);
             if (elem) elem.remove();
         }
-        doc.querySelector('[href="zotmeta.ftl"]').remove();
+        doc.querySelector('[href="zotmeta.ftl"]')?.remove();
     },
     
     removeFromAllWindows() {
