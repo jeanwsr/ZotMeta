@@ -1,4 +1,4 @@
-Journal = {    
+Journal = {
     generateAuthors (authors) {
         var newAuthorList = [];
         if (authors) {
@@ -44,10 +44,10 @@ Journal = {
         return Utilities.fetchWithTimeout(url, requestInfo, 3000)
             .then(response => {
                 if (!response.ok) {
-                    Utilities.publishError("Error retrieving metadata", 
+                    Utilities.publishError("Error retrieving metadata",
                         "Please check if DOI is correct and if you have network access to dx.doi.org.");
                     return null;
-                        
+
                 }
                 return response.text()
             })
@@ -60,12 +60,27 @@ Journal = {
             })
             .then(dataJson => {
                 var Title = Utilities.safeGetFromJson(dataJson, ["title"]);
+
+                // If there's a subtitle, append it to the title separated by ": "
+                var Subtitles = Utilities.safeGetFromJson(dataJson, ["subtitle"]);
+                if (Subtitles && Subtitles.length > 0) {
+                    var subtitleText = Subtitles[0];
+                    Title = Title ? Title + ": " + subtitleText : subtitleText;
+                }
+
                 var Authors = this.generateAuthors(Utilities.safeGetFromJson(dataJson, ["author"]));
                 var Publication = Utilities.safeGetFromJson(dataJson, ["container-title"]);
                 var Volume = Utilities.safeGetFromJson(dataJson, ["volume"]);
                 var Issue = Utilities.safeGetFromJson(dataJson, ["issue"]);
                 var Pages = Utilities.safeGetFromJson(dataJson, ["page"]);
                 var PublishDate = this.generateDate(Utilities.safeGetFromJson(dataJson, ["published", "date-parts"]));
+
+                // Check if there is a published-print date and use it if available
+                var publishedPrintDate = Utilities.safeGetFromJson(dataJson, ["published-print", "date-parts"]);
+                if (publishedPrintDate && publishedPrintDate.length > 0) {
+                    PublishDate = this.generateDate(publishedPrintDate);
+                }
+
                 var JournalAbbr = Utilities.safeGetFromJson(dataJson, ["container-title-short"]);
                 var Language = Utilities.safeGetFromJson(dataJson, ["language"]);
                 return {
@@ -81,13 +96,13 @@ Journal = {
                         };
             });
     },
-      
+
     async updateMetadata(item) {
         var metaData = await this.getMetaData(item);
         if (!metaData) {
             return 1;
         }
-        
+
         if (!Utilities.isEmpty(metaData["Title"]))       item.setField('title',metaData["Title"]);
         if (!Utilities.isEmpty(metaData["Authors"]))     item.setCreators(metaData["Authors"]);
         if (!Utilities.isEmpty(metaData["Publication"])) item.setField('publicationTitle',metaData["Publication"]);
