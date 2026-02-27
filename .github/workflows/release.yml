@@ -10,6 +10,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -18,8 +21,8 @@ jobs:
       run: |
           tag=${GITHUB_REF#refs/tags/v}
           echo "Generating release ${tag}..."
-          sed -i "s#<em:version>[0-9]*.[0-9]*</em:version>#<em:version>${tag}</em:version>#g" src/install.rdf
-          sed -i "s#\"version\": \"[0-9]*.[0-9]*\"#\"version\": \"${tag}\"#g" src/manifest.json
+          sed -i "s#<em:version>[0-9][0-9.]*</em:version>#<em:version>${tag}</em:version>#g" src/install.rdf
+          sed -i "s#\"version\": \"[0-9][0-9.]*\"#\"version\": \"${tag}\"#g" src/manifest.json
 
     - name: Make
       run: make clean && make
@@ -32,8 +35,8 @@ jobs:
     
     - name: Commit updates.json
       run: |
-          git config --global user.name 'Jiawei Duan'
-          git config --global user.email 'jiawei.duan@outlook.com'
+          git config --global user.name 'copilot'
+          git config --global user.email 'copilot@github.com'
           git commit -am "Commit new updates.json from Github Actions"
           git push origin HEAD:master
           
